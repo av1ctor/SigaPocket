@@ -121,7 +121,7 @@ const Groups = ({api, showMessage, navigation}) =>
 				} 
 				id={group.grupo}
 				left={props => <List.Icon {...props} icon="folder" />}
-				onPress={() => navigation.navigate('Docs', {group: group})}>
+				onPress={() => navigation.navigate('Docs', {groupId: group.grupo})}>
 			</List.Item>
 		);
 	};

@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView, View} from 'react-native';
 import {Badge, Button, Text, TextInput} from 'react-native-paper';
+import {DocsContext} from '../contexts/Docs';
 import styles from '../styles/default';
 
 const Doc = ({navigation, route}) =>
 {
+	const [state, ] = useContext(DocsContext);
+
 	const renderStates = (states) =>
 	{
 		return (
@@ -15,13 +18,14 @@ const Doc = ({navigation, route}) =>
 		);
 	};
 
-
 	const viewPdf = (doc) =>
 	{
 		navigation.navigate('PdfView', {doc: doc});
 	};
 
-	const {doc} = route.params;
+	const {groupId, docId} = route.params;
+	const group = state.groups.find(g => g.grupo === groupId) || {};
+	const doc = group.grupoDocs.find(d => d.codigo === docId) || {};
 
 	return(
 		<SafeAreaView style={styles.safeAreaView}>
