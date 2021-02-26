@@ -25,6 +25,12 @@ const styles = StyleSheet.create({
 		alignItems: 'center',
 		marginTop: 25,
 	},
+	stateContainer: {
+		paddingTop: 8,
+		paddingBottom: 8,
+		flexDirection: 'row',
+		alignItems: 'center'
+	}
 });
 
 export default styles;

@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView, View} from 'react-native';
-import {Chip, List, Text, TextInput} from 'react-native-paper';
+import {Chip, List, Text, TextInput, Divider} from 'react-native-paper';
 import {DocsContext} from '../contexts/Docs';
 import styles from '../styles/default';
 
@@ -90,16 +90,19 @@ const Doc = ({api, navigation, route}) =>
 						editable={false}
 					/>
 				</View>
-				<View style={styles.view}>
-					<Text>
+				<View style={styles.stateContainer}>
+					<Text style={{paddingRight: 4}}>
 						Situação
 					</Text>
 					{renderStates(doc.list || [])}
 				</View>
-				<List.Section>
-					<List.Subheader>Partes</List.Subheader>
+				<View style={styles.view}>
+					<Divider />
+					<Text>
+						Documentos
+					</Text>
 					{renderParts(parts)}
-				</List.Section>
+				</View>
 			</ScrollView>              
 		</SafeAreaView>
 	);
