@@ -49,10 +49,10 @@ const DocsSyncTask = async (params) =>
 			return;
 		}
 
-		const groups = await api.loadGroups();
+		const groups = await api.findGroups();
 		if(!groups)
 		{
-			console.error('Erro: api.loadGroups() falhou');
+			console.error('Erro: api.findGroups() falhou');
 			return;
 		}
 

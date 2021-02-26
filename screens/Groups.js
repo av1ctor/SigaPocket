@@ -81,7 +81,7 @@ const Groups = ({api, showMessage, navigation}) =>
 
 		try
 		{
-			const groups = await api.loadGroups();
+			const groups = await api.findGroups();
 			if(!groups)
 			{
 				if(!config.load.groups)
@@ -121,8 +121,8 @@ const Groups = ({api, showMessage, navigation}) =>
 				} 
 				id={group.grupo}
 				left={props => <List.Icon {...props} icon="folder" />}
-				onPress={() => navigation.navigate('Docs', {groupId: group.grupo})}>
-			</List.Item>
+				right={props => <List.Icon {...props} icon="chevron-right" />}
+				onPress={() => navigation.navigate('Docs', {groupId: group.grupo})} />
 		);
 	};
 

@@ -1,5 +1,5 @@
 
-const ROOT_PATH = process.env.NODE_ENV !== 'development'? 
+const ROOT_PATH = process.env.NODE_ENV !== 'development' || true?  
 	'https://www.documentos.spsempapel.sp.gov.br':
 	'http://192.168.0.6:8888';
 const BASE_PATH = ROOT_PATH + '/sigaex/app/';
@@ -31,11 +31,11 @@ export default class SigaApi
 			return {errors: ['Usuário e/ou senha inválidos'], data: null};
 		}
 
-		const user = await this.loadUser(username);
+		const user = await this.findUser(username);
 		return {errors: null, data: user || {}};
 	}
 
-	async loadUser(cpf)
+	async findUser(cpf)
 	{
 		const res = await this.requestURL('GET', `${USER_URL}?cpf=${cpf}`, null, {isJsonResponse: true});
 		if(res.errors !== null)
@@ -49,7 +49,7 @@ export default class SigaApi
 			{};
 	}
 
-	async loadGroups(daLotacao = false, idVisualizacao = 0)
+	async findGroups(daLotacao = false, idVisualizacao = 0)
 	{
 		const buildFormData = (params) =>
 		{
@@ -204,7 +204,7 @@ export default class SigaApi
 		return true;
 	}
 
-	async loadPdf(nome, semMarcas, onProgress)
+	async findPdf(nome, semMarcas, onProgress)
 	{
 		const extractText = (from, pattern) =>
 		{
@@ -252,6 +252,48 @@ export default class SigaApi
 		}
 
 		return ROOT_PATH + url;
+	}
+
+	async findDocParts(sigla)
+	{
+		const extrairPartes = (text) =>
+		{
+			const res = [];
+			while(text.length > 0)
+			{
+				const match = /javascript:exibir\('(.*?)','(.*?)',''\)">(.*?)<\/a>/.exec(text);
+				if(!match)
+				{
+					break;
+				}
+
+				if(match[2].indexOf('&completo=1') === -1)
+				{
+					res.push({
+						sigla: match[2].replace('.pdf', ''),
+						title: match[3].trim()
+					});
+				}
+
+				text = text.substr(match.index + match[0].length);
+			}
+
+			return res;
+		};
+
+		// não existe API para listar as partes de um documento, então temos que extrair dados da página HTML mesmo....
+		const res = await this.get(
+			`expediente/doc/exibirProcesso?sigla=${sigla}&`, 
+			{isJsonResponse: false});
+		if(res.errors !== null)
+		{
+			return null;
+		}
+
+		const text = res.data.replace(/[\r\n]/g, '');
+		const partes = extrairPartes(text);
+
+		return partes;
 	}
 
 	async requestURL(
@@ -308,9 +350,9 @@ export default class SigaApi
 			}
 			else
 			{
-				const body = res && res.json && res.json.constructor === Function? 
+				const body = res && isJsonResponse && res.json && res.json.constructor === Function? 
 					await res.json(): 
-					null;
+					await res.text();
 				
 				return {
 					errors: errors || [], 

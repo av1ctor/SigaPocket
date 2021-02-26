@@ -14,8 +14,8 @@ const PdfView = ({api, showMessage, route}) =>
 	{
 		(async () =>
 		{
-			const {doc} = route.params;
-			const res = await api.loadPdf(doc.sigla, false, (completed) => setCompleted(completed));
+			const {sigla} = route.params;
+			const res = await api.findPdf(sigla, false, (completed) => setCompleted(completed));
 			if(res === null)
 			{
 				showMessage('Falha ao carregar PDF', 'error');
@@ -25,7 +25,7 @@ const PdfView = ({api, showMessage, route}) =>
 			setUrl(res);
 			setCompleted(1.0);
 		})();
-	}, []);
+	}, [route.params.sigla]);
 
 	return (
 		<View style={styles.pdfContainer}>

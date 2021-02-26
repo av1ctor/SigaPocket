@@ -20,11 +20,11 @@ const styles = StyleSheet.create({
 		paddingTop: 4,
 	},
 	pdfContainer: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        marginTop: 25,
-    }	
+		flex: 1,
+		justifyContent: 'flex-start',
+		alignItems: 'center',
+		marginTop: 25,
+	},
 });
 
 export default styles;

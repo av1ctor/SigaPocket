@@ -17,6 +17,7 @@ const Docs = ({navigation, route}) =>
 				title={doc.sigla}
 				description={doc.descr}
 				left={props => <List.Icon {...props} icon="file-document" />}
+				right={props => <List.Icon {...props} icon="chevron-right" />}
 				onPress={() => navigation.navigate('Doc', {groupId: groupId, docId: doc.codigo})}
 			/>
 		);

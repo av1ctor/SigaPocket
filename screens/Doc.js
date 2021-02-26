@@ -1,31 +1,62 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView, View} from 'react-native';
-import {Badge, Button, Text, TextInput} from 'react-native-paper';
+import {Chip, List, Text, TextInput} from 'react-native-paper';
 import {DocsContext} from '../contexts/Docs';
 import styles from '../styles/default';
 
-const Doc = ({navigation, route}) =>
+const Doc = ({api, navigation, route}) =>
 {
 	const [state, ] = useContext(DocsContext);
-
-	const renderStates = (states) =>
-	{
-		return (
-			<Badge size={20}>
-				{states.map(state => state.nome)}
-			</Badge>
-		);
-	};
-
-	const viewPdf = (doc) =>
-	{
-		navigation.navigate('PdfView', {doc: doc});
-	};
+	const [parts, setParts] = useState();
 
 	const {groupId, docId} = route.params;
 	const group = state.groups.find(g => g.grupo === groupId) || {};
 	const doc = group.grupoDocs.find(d => d.codigo === docId) || {};
+
+	useEffect(() => 
+	{
+		listParts();
+	}, [route.params.docId]);
+
+	const listParts = async () =>
+	{
+		setParts(await api.findDocParts(doc.sigla));
+	};
+	
+	const renderParts = (parts) =>
+	{
+		if(!parts)
+		{
+			return <Text>Carregando...</Text>;
+		}
+
+		return (
+			parts.map((part, index) => 
+				<List.Item 
+					key={index}
+					id={index}
+					title={part.title}
+					left={props => <List.Icon {...props} icon="file-pdf" />} 
+					right={props => <List.Icon {...props} icon="chevron-right" />}
+					onPress={() => navigation.navigate('PdfView', {sigla: part.sigla})}
+				/>
+			)
+		);
+	};
+
+	const renderStates = (states) =>
+	{
+		return (
+			states.map((state, index) => 
+				<Chip 
+					key={index}
+					mode="outlined">
+					{state.nome}
+				</Chip>
+			)
+		);
+	};
 
 	return(
 		<SafeAreaView style={styles.safeAreaView}>
@@ -60,25 +91,24 @@ const Doc = ({navigation, route}) =>
 					/>
 				</View>
 				<View style={styles.view}>
-					<Text>{renderStates(doc.list || [])}</Text>
+					<Text>
+						Situação
+					</Text>
+					{renderStates(doc.list || [])}
 				</View>
-				<View style={styles.view}>
-					<Button
-						mode="contained"
-						icon="eye-outline"
-						onPress={() => viewPdf(doc)}
-					>
-						<Text style={{color: '#fff'}}>Visualizar</Text>
-					</Button>
-				</View>
+				<List.Section>
+					<List.Subheader>Partes</List.Subheader>
+					{renderParts(parts)}
+				</List.Section>
 			</ScrollView>              
 		</SafeAreaView>
 	);
 };
 
 Doc.propTypes = {
+	api: PropTypes.object,
 	navigation: PropTypes.object,
-	route: PropTypes.object
+	route: PropTypes.object,
 };
 
 export default Doc;
