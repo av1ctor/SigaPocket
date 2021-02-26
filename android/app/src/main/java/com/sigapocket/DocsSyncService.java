@@ -1,17 +1,19 @@
 package com.sigapocket;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Build;
+import android.app.PendingIntent;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Intent;
 import android.content.Context;
 import android.graphics.Color;
 import androidx.core.app.NotificationCompat;
 import androidx.annotation.RequiresApi;
 import com.facebook.react.HeadlessJsTaskService;
 import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.jstasks.HeadlessJsTaskConfig;
 import javax.annotation.Nullable;
 import android.util.Log;
@@ -34,30 +36,27 @@ public class DocsSyncService extends HeadlessJsTaskService
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) 
 	{
-		HeadlessJsTaskConfig taskConfig = getTaskConfig(intent);
-		if (taskConfig != null) 
-		{
-			keepRunning();
-			startTask(taskConfig);
-
-			return START_REDELIVER_INTENT;
-		}
-
-		return START_NOT_STICKY;
+		keepRunning(getReactNativeHost().getReactInstanceManager().getCurrentReactContext());
+		return super.onStartCommand(intent, flags, startId);
 	}
 
-    private void keepRunning()
+    private void keepRunning(ReactContext context)
     {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) 
         {
             NotificationCompat.Builder builder = 
                 new NotificationCompat.Builder(
-                    this, 
+                    context, 
                     Util.createNotificationChannel(
-                        this, 
+                        context, 
                         "siga-pocket-chan", 
                         "SigaPocket"));
-            builder.setPriority(NotificationCompat.PRIORITY_MIN);
+            
+			builder.setPriority(NotificationCompat.PRIORITY_MIN);
+			
+			Intent notificationIntent = new Intent(context, context.getCurrentActivity().getClass());
+			PendingIntent contentIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+			builder.setContentIntent(contentIntent);
 
             startForeground(1, builder.build());
         }

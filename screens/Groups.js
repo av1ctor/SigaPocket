@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SafeAreaView, ScrollView} from 'react-native';
 import {List, Text} from 'react-native-paper';
+import {Mutex} from 'async-mutex';
 import {DocsContext} from '../contexts/Docs';
 import styles from '../styles/default';
 
@@ -10,68 +11,80 @@ const Groups = ({api, showMessage, navigation}) =>
 {
 	const [state, dispatch] = useContext(DocsContext);
 
-	useEffect(() => 
-	{
-		loadGroups('useEffect()');		
-	}, []);
-
 	const config = {
 		check: {
 			timer: null,
-			running: false
+			mutex: new Mutex()
 		},
 		load: {
-			groups: null,
 			timer: null,
-			running: false
+			mutex: new Mutex(),
+			groups: null
 		}
 	};
 
-	const checkIfReloadIsNeeded = async () =>
+	useEffect(() => 
 	{
-		if(config.check.running)
+		loadGroups();
+		config.load.timer = setInterval(() => loadGroups(), 1000*60*1);
+		
+		checkIfUpdated();
+		config.check.timer = setInterval(() => checkIfUpdated(), 1000*3);
+		
+		return () => {
+			clearInterval(config.load.timer); 
+			clearInterval(config.check.timer);
+		};
+	}, []);
+
+	const checkIfUpdated = async () =>
+	{
+		if(config.check.mutex.isLocked())
 		{
 			return;
 		}
 
-		config.check.running = true;
+		const release = await config.check.mutex.acquire();
 
 		try
 		{
-			const reloadGroups = await AsyncStorage.getItem('@reloadGroups');
-			if(reloadGroups)
+			const groups = await AsyncStorage.getItem('@groups');
+			if(groups)
 			{
-				await AsyncStorage.removeItem('@reloadGroups');
-				loadGroups('checkIfReloadIsNeeded()');
+				await AsyncStorage.removeItem('@groups');
+				updateGroups(JSON.parse(groups));
 			}
 		}
 		finally
 		{
-			config.check.running = false;
-			config.check.timer && clearTimeout(config.check.timer);
-			config.check.timer = setTimeout(() => checkIfReloadIsNeeded(), 1000*5);
+			release();
 		}
 	};
 
-	checkIfReloadIsNeeded();
-
-	const loadGroups = async (by = 'unknown') =>
+	const updateGroups = (groups) =>
 	{
-		if(config.load.running)
+		config.load.groups = groups;
+		dispatch({
+			type: 'SET_GROUPS',
+			payload: groups || [],
+		});
+	};
+
+	const loadGroups = async () =>
+	{
+		if(config.load.mutex.isLocked())
 		{
 			return;
 		}
 
-		config.load.running = true;
+		const release = await config.load.mutex.acquire();
 
 		try
 		{
-			//console.log(`loadGroups() called by ${by}`);
-
 			const groups = await api.loadGroups();
 			if(!groups)
 			{
-				if(config.load.groups === null)
+				if(!config.load.groups)
 				{
 					showMessage(['Erro ao carregar grupos de documentos'], 'error');
 				}
@@ -80,19 +93,13 @@ const Groups = ({api, showMessage, navigation}) =>
 			{
 				if(!api.compareGroups(config.load.groups, groups))
 				{
-					config.load.groups = groups;
-					dispatch({
-						type: 'SET_GROUPS',
-						payload: groups || [],
-					});
+					updateGroups(groups);
 				}
 			}
 		}
 		finally
 		{
-			config.load.running = false;
-			config.load.timer && clearTimeout(config.load.timer);
-			config.load.timer = setTimeout(() => loadGroups('loadGroups()'), 1000*60*1);
+			release();
 		}
 	};
 

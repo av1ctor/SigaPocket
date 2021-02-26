@@ -1,5 +1,7 @@
 
-const ROOT_PATH = 'https://www.documentos.spsempapel.sp.gov.br';
+const ROOT_PATH = process.env.NODE_ENV !== 'development'? 
+	'https://www.documentos.spsempapel.sp.gov.br':
+	'http://192.168.0.6:8888';
 const BASE_PATH = ROOT_PATH + '/sigaex/app/';
 const LOGIN_URL = ROOT_PATH + '/siga/public/app/login';
 const USER_URL  = ROOT_PATH + '/siga/api/v1/pessoas';

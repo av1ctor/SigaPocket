@@ -3,7 +3,7 @@
  * @flow strict-local
  */
 
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Image, View, SafeAreaView, ScrollView} from 'react-native';
@@ -11,7 +11,6 @@ import {Button, Text, TextInput} from 'react-native-paper';
 import {USERNAME_, PASSWORD_} from '@env';
 import styles from '../styles/default';
 import {UserContext} from '../contexts/User';
-import { useEffect } from 'react';
 
 const Logon = ({api, showMessage, navigation}) =>
 {

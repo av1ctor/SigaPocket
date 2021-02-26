@@ -16,7 +16,8 @@ import android.util.Log;
 
 public class DocsSyncJob extends JobService
 {
-	public static long INTERVAL = 60 * 5; // em segundos
+	//NOTA: se for usado 60 secs ou mais, o app vai entrar em modo background e, mesmo com notification, nunca será iniciado o headless service
+	public static long INTERVAL = 30 * 1; // em segundos
 	
 	@Override
 	public boolean onStartJob(JobParameters params) 
@@ -52,10 +53,6 @@ public class DocsSyncJob extends JobService
 
 	private boolean isAppOnForeground(Context context) 
 	{
-		/**
-			 We need to check if app is in foreground otherwise the app will crash.
-			http://stackoverflow.com/questions/8489993/check-android-application-is-in-foreground-or-not
-		**/
 		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
 		List<ActivityManager.RunningAppProcessInfo> appProcesses =
 		activityManager.getRunningAppProcesses();

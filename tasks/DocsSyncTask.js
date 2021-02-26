@@ -1,25 +1,26 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Mutex} from 'async-mutex';
 import SigaApi from '../components/SigaApi';
 import Notificator from '../components/Notificator';
 
 const config = {
-	groups: null,
-	running: false
+	mutex: new Mutex(),
+	groups: null
 };
 
 const CHANNEL_ID = 'siga-pocket-chan';
 
 const DocsSyncTask = async (params) =>
 {
-	if(config.running)
+	if(config.mutex.isLocked())
 	{
 		return;
 	}
+
+	const release = await config.mutex.acquire();
 	
 	try
 	{
-		config.running = true;
-
 		const loadUser = async () =>
 		{
 			const username = await AsyncStorage.getItem('@username');
@@ -29,7 +30,7 @@ const DocsSyncTask = async (params) =>
 
 		Notificator.config((msg) =>
 		{
-			AsyncStorage.setItem('@reloadGroups', '1');
+			AsyncStorage.setItem('@groups', JSON.stringify(config.groups));
 		});
 
 		const user = await loadUser();
@@ -70,7 +71,7 @@ const DocsSyncTask = async (params) =>
 	}
 	finally
 	{
-		config.running = false;
+		release();
 	}
 };
 
