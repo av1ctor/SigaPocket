@@ -1,22 +1,24 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {NativeEventEmitter, NativeModules, SafeAreaView, ScrollView} from 'react-native';
 import {List, Text} from 'react-native-paper';
 import {Mutex} from 'async-mutex';
 import {OptionsContext} from '../contexts/Options';
 import {DocsContext} from '../contexts/Docs';
+import LoadingIndicator from '../components/LoadingIndicator';
 import Notificator from '../components/Notificator';
 import styles from '../styles/default';
 
 const {SigaPocketModule} = NativeModules;
 const eventEmitter = new NativeEventEmitter(SigaPocketModule);
 
-const CHANNEL_ID = 'siga-pocket-chan';
+const {CHANNEL_ID} = SigaPocketModule.getConstants();
 
 const Groups = ({api, showMessage, navigation}) =>
 {
 	const [options, ] = useContext(OptionsContext);
 	const [state, dispatch] = useContext(DocsContext);
+	const [loading, setLoading] = useState(false);
 
 	const config = {
 		mutex: new Mutex(),
@@ -26,7 +28,7 @@ const Groups = ({api, showMessage, navigation}) =>
 	useEffect(() => 
 	{
 		loadGroups();
-	}, []);
+	}, [options.lota]);
 
 	useEffect(() => 
 	{
@@ -57,7 +59,9 @@ const Groups = ({api, showMessage, navigation}) =>
 
 		try
 		{
-			const groups = await api.findGroups();
+			setLoading(true);
+
+			const groups = await api.findGroups(options.lota);
 			if(!groups)
 			{
 				if(!config.groups)
@@ -84,6 +88,7 @@ const Groups = ({api, showMessage, navigation}) =>
 		}
 		finally
 		{
+			setLoading(false);
 			release();
 		}
 	};
@@ -105,7 +110,7 @@ const Groups = ({api, showMessage, navigation}) =>
 					</Text>
 				} 
 				id={group.grupo}
-				left={props => <List.Icon {...props} icon="folder" />}
+				left={props => <List.Icon {...props} icon={group.grupoIcone} />}
 				right={props => <List.Icon {...props} icon="chevron-right" />}
 				onPress={() => navigation.navigate('Docs', {groupId: group.grupo})} />
 		);
@@ -114,11 +119,17 @@ const Groups = ({api, showMessage, navigation}) =>
 	const {groups} = state;
 		
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
-			<ScrollView style={styles.scrollView}>
-				{groups.map(group => renderGroup(group))}
-			</ScrollView>              
-		</SafeAreaView>
+		<>
+			<SafeAreaView style={styles.safeAreaView}>
+				<ScrollView style={styles.scrollView}>
+					{groups.map(group => renderGroup(group))}
+				</ScrollView>              
+			</SafeAreaView>
+			{groups.length === 0 && 
+				<LoadingIndicator
+					loading={loading} />
+			}
+		</>
 	);
 };
 

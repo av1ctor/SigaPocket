@@ -6,6 +6,14 @@ const BASE_PATH = ROOT_PATH + '/sigaex/app/';
 const LOGIN_URL = ROOT_PATH + '/siga/public/app/login';
 const USER_URL  = ROOT_PATH + '/siga/api/v1/pessoas';
 
+const iconToIcon = {
+	'fas fa-hourglass-end': 'alert',
+	'fas fa-inbox': 'inbox',
+	'fas fa-lightbulb': 'lightbulb',
+	'fas fa-clock': 'alarm',
+	'fas fa-tags': 'tag'
+};
+
 export default class SigaApi 
 {
 	async logon(username, password)
@@ -47,6 +55,11 @@ export default class SigaApi
 		return data.list && data.list.length > 0?
 			data.list[0]:
 			{};
+	}
+
+	static remapIcon(icon)
+	{
+		return iconToIcon[icon] || 'folder';
 	}
 
 	async findGroups(daLotacao = false, idVisualizacao = 0)
@@ -93,7 +106,7 @@ export default class SigaApi
 			return null;
 		}
 		
-		return res.data;
+		return res.data.map(group => ({...group, grupoIcone: SigaApi.remapIcon(group.grupoIcone)}));
 	}
 
 	compareGroups(v1, v2)

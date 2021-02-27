@@ -11,6 +11,9 @@ import java.util.HashMap;
 
 public class SigaPocketModule extends ReactContextBaseJavaModule
 {
+    public static final String CHANNEL_ID = "siga-pocket-chan";
+    public static final String CHANNEL_NAME = "SigaPocketChannel";
+    
     public SigaPocketModule(ReactApplicationContext context)
     {
         super(context);
@@ -21,6 +24,15 @@ public class SigaPocketModule extends ReactContextBaseJavaModule
 	{
     	return "SigaPocketModule";
     }
+
+    @Override
+    public Map<String, Object> getConstants() 
+    {
+       final Map<String, Object> constants = new HashMap<>();
+       constants.put("CHANNEL_ID", CHANNEL_ID);
+       constants.put("CHANNEL_NAME", CHANNEL_NAME);
+       return constants;
+    }    
 
     @ReactMethod
     public void isAppOnForeground(Promise promise)

@@ -9,27 +9,27 @@ const Docs = ({navigation, route}) =>
 {
 	const [state, ] = useContext(DocsContext);
 
-	const renderDoc = (groupId, doc) =>
+	const {groupId} = route.params;
+	const group = state.groups.find(g => g.grupo === groupId) || {};
+
+	const renderDoc = (group, roupId, doc) =>
 	{
 		return (
 			<List.Item
 				key={doc.codigo}
 				title={doc.sigla}
 				description={doc.descr}
-				left={props => <List.Icon {...props} icon="file-document" />}
+				left={props => <List.Icon {...props} icon={group.grupoIcone} />}
 				right={props => <List.Icon {...props} icon="chevron-right" />}
 				onPress={() => navigation.navigate('Doc', {groupId: groupId, docId: doc.codigo})}
 			/>
 		);
 	};
 
-	const {groupId} = route.params;
-	const group = state.groups.find(g => g.grupo === groupId) || {};
-
 	return(
 		<SafeAreaView style={styles.safeAreaView}>
 			<ScrollView style={styles.scrollView}>
-				{(group.grupoDocs || []).map(doc => renderDoc(groupId, doc))}
+				{(group.grupoDocs || []).map(doc => renderDoc(group, groupId, doc))}
 			</ScrollView>              
 		</SafeAreaView>
 	);

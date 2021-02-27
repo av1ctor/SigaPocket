@@ -1,9 +1,10 @@
 import React, {useContext} from 'react';
 import PropTypes from 'prop-types';
 import {View} from 'react-native';
-import {Switch, Text} from 'react-native-paper';
+import {Divider, Text, Switch} from 'react-native-paper';
 import DialogPanel from '../components/DialogPanel';
 import {OptionsContext} from '../contexts/Options';
+import styles from '../styles/default';
 
 const Options = ({visible, onDismiss}) =>
 {
@@ -17,17 +18,35 @@ const Options = ({visible, onDismiss}) =>
 		});
 	};
 	
+	const setLota = (value) =>
+	{
+		dispatch({
+			type: 'SET_LOTA',
+			payload: value
+		});
+	};
+	
 	return (
 		<DialogPanel
 			visible={visible}
 			title="Opções"
 			icon="format-list-bulleted-square"
 			onDismiss={onDismiss}>
-			<View style={{flexDirection:'row'}}>
-				<Text>Auto sincronizar</Text>
+			<View style={styles.switchContainer}>
+				<Text>Exibir expedientes da unidade</Text>
+				<Switch
+					value={state.lota} 
+					style={{marginLeft: 32}}
+					onValueChange={(value) => setLota(value)}
+				/>
+			</View>
+			<Divider />
+			<View style={styles.switchContainer}>
+				<Text>Sincronizar automaticamente</Text>
 				<Switch 
 					value={state.sync} 
-					onValueChange={() => setSync(!state.sync)} 
+					style={{marginLeft: 32}}
+					onValueChange={(value) => setSync(value)} 
 				/>
 			</View>
 		</DialogPanel>        

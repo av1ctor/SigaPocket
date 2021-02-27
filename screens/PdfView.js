@@ -1,21 +1,23 @@
 import React, {useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, Dimensions, View} from 'react-native';
-import {Text} from 'react-native-paper';
+import {Colors, ProgressBar, Text} from 'react-native-paper';
 import Pdf from 'react-native-pdf';
+import LoadingIndicator from '../components/LoadingIndicator';
 import styles from '../styles/default';
 
 const PdfView = ({api, showMessage, route}) =>
 {
 	const [url, setUrl] = useState(null);
-	const [completed, setCompleted] = useState(0.0);
+	const [generated, setGenerated] = useState(0.0);
+	const [loaded, setLoaded] = useState(1.0);
 
 	useEffect(() =>
 	{
 		(async () =>
 		{
 			const {sigla} = route.params;
-			const res = await api.findPdf(sigla, false, (completed) => setCompleted(completed));
+			const res = await api.findPdf(sigla, false, (completed) => setGenerated(completed));
 			if(res === null)
 			{
 				showMessage('Falha ao carregar PDF', 'error');
@@ -23,24 +25,34 @@ const PdfView = ({api, showMessage, route}) =>
 			}
     
 			setUrl(res);
-			setCompleted(1.0);
+			setGenerated(1.0);
 		})();
 	}, [route.params.sigla]);
 
 	return (
-		<View style={styles.pdfContainer}>
-			{url &&
-				<Pdf
-					source={{uri: url, cache: true}}
-					style={localStyles.pdf}
-				/>
-			}
-			{!url && 
-                <Text>
-                    Gerando: {(completed * 100).toFixed(0)}%
-                </Text>
-			}
-		</View>
+		<>
+			<ProgressBar 
+				progress={loaded} 
+				color={Colors.red800}
+				visible={loaded < 1.0} 
+			/>
+			<View style={styles.pdfContainer}>
+				{url?
+					<Pdf
+						source={{uri: url, cache: true}}
+						style={localStyles.pdf}
+						onLoadProgress={(percent) => setLoaded(percent)}
+						onLoadComplete={() => setLoaded(1.0)}
+						activityIndicator={<></>}
+					/>:
+					<Text>
+						Gerando: {(generated * 100).toFixed(0)}%
+					</Text>
+				}
+			</View>
+			<LoadingIndicator
+				loading={!url} />
+		</>
 	);
 };
 

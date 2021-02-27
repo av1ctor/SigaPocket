@@ -11,11 +11,13 @@ import {Button, Text, TextInput} from 'react-native-paper';
 import {USERNAME_, PASSWORD_} from '@env';
 import styles from '../styles/default';
 import {UserContext} from '../contexts/User';
+import LoadingIndicator from '../components/LoadingIndicator';
 
 const Logon = ({api, showMessage, navigation}) =>
 {
 	const [username, setUsername] = useState(USERNAME_ || '');
 	const [password, setPassword] = useState(PASSWORD_ || '');
+	const [loading, setLoading] = useState(false);
 	const [, dispatch] = useContext(UserContext);
 
 	useEffect(() =>
@@ -64,69 +66,83 @@ const Logon = ({api, showMessage, navigation}) =>
 
 	const doLogon = async () =>
 	{
-		if(!validateForm())
+		try
 		{
-			return;
+			if(!validateForm())
+			{
+				return;
+			}
+			
+			setLoading(true);
+
+			const res = await api.logon(username, password);
+			if(res.errors !== null)
+			{
+				showMessage(res.errors, 'error');
+				return;
+			}
+
+			dispatch({
+				type: 'SET_USER',
+				payload: res.data
+			});
+
+			storeUser(username, password);
+
+			navigation.navigate('Groups');
 		}
-		
-		const res = await api.logon(username, password);
-		if(res.errors !== null)
+		finally
 		{
-			showMessage(res.errors, 'error');
-			return;
+			setLoading(false);
 		}
-
-		dispatch({
-			type: 'SET_USER',
-			payload: res.data
-		});
-
-		storeUser(username, password);
-
-		navigation.navigate('Groups');
 	};
 
 	return (
-		<SafeAreaView style={styles.safeAreaView}>
-			<ScrollView style={styles.scrollView}>
-				<View style={styles.view}>
-					<Image 
-						style={styles.logo}
-						// eslint-disable-next-line no-undef
-						source={require('../assets/logo-sem-papel-cor.png')}
-					/>
-				</View>
+		<>
+			<SafeAreaView style={styles.safeAreaView}>
+				<ScrollView style={styles.scrollView}>
+					<View style={styles.view}>
+						<Image 
+							style={styles.logo}
+							// eslint-disable-next-line no-undef
+							source={require('../assets/logo-sem-papel-cor.png')}
+						/>
+					</View>
 
-				<View style={styles.view}>
-					<TextInput
-						label="Usuário"
-						placeholder="Digite seu CPF ou matrícula"
-						onChangeText={setUsername}
-						value={username}
-					/>
-				</View>
+					<View style={styles.view}>
+						<TextInput
+							label="Usuário"
+							placeholder="Digite seu CPF ou matrícula"
+							onChangeText={setUsername}
+							value={username}
+						/>
+					</View>
 
-				<View style={styles.view}>
-					<TextInput
-						secureTextEntry
-						label="Senha"
-						placeholder="Senha"
-						onChangeText={setPassword}
-						value={password}
-					/>
-				</View>
+					<View style={styles.view}>
+						<TextInput
+							secureTextEntry
+							label="Senha"
+							placeholder="Senha"
+							onChangeText={setPassword}
+							value={password}
+						/>
+					</View>
 
-				<View style={styles.view}>
-					<Button
-						mode="contained"
-						icon="login"
-						onPress={doLogon}
-					>
-						<Text style={{color: '#fff'}}>Entrar</Text>
-					</Button>
-				</View>
-			</ScrollView>
-		</SafeAreaView>
+					<View style={styles.view}>
+						<Button
+							mode="contained"
+							icon="login"
+							disabled={loading}
+							onPress={doLogon}
+						>
+							<Text style={{color: '#fff'}}>Entrar</Text>
+						</Button>
+					</View>
+				</ScrollView>
+			</SafeAreaView>
+			<LoadingIndicator
+				loading={loading} />
+		</>
 	);
 };
 

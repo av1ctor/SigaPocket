@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 export const OptionsContext = createContext();
 
 const initState = {
-	sync: true
+	sync: true,
+	lota: false
 };
 
 const reducer = (state, action) => 
@@ -15,6 +16,12 @@ const reducer = (state, action) =>
 		return {
 			...state,
 			sync: action.payload
+		};
+
+	case 'SET_LOTA':
+		return {
+			...state,
+			lota: action.payload
 		};
 
 	default:

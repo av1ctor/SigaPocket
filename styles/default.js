@@ -30,6 +30,17 @@ const styles = StyleSheet.create({
 		paddingBottom: 8,
 		flexDirection: 'row',
 		alignItems: 'center'
+	},
+	switchContainer: {
+		marginTop: 8,
+		marginBottom: 8,
+		flexDirection: 'row',
+		alignItems: 'center'
+	},
+	loadingContainer: {
+		flex: 1,
+		alignItems: 'center',
+		justifyContent: 'center',
 	}
 });
 

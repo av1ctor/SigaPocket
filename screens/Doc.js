@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView, View} from 'react-native';
-import {Chip, List, Text, TextInput, Divider} from 'react-native-paper';
+import {Chip, List, Text, TextInput, Divider, Colors, ActivityIndicator} from 'react-native-paper';
 import {DocsContext} from '../contexts/Docs';
 import styles from '../styles/default';
 
@@ -12,7 +12,7 @@ const Doc = ({api, navigation, route}) =>
 
 	const {groupId, docId} = route.params;
 	const group = state.groups.find(g => g.grupo === groupId) || {};
-	const doc = group.grupoDocs.find(d => d.codigo === docId) || {};
+	const doc = (group.grupoDocs || []).find(d => d.codigo === docId) || {};
 
 	useEffect(() => 
 	{
@@ -28,7 +28,10 @@ const Doc = ({api, navigation, route}) =>
 	{
 		if(!parts)
 		{
-			return <Text>Carregando...</Text>;
+			return <ActivityIndicator
+				animating
+				color={Colors.red800}
+				size={20} />;
 		}
 
 		return (
@@ -63,7 +66,7 @@ const Doc = ({api, navigation, route}) =>
 			<ScrollView style={styles.scrollView}>
 				<View style={styles.view}>
 					<TextInput
-						label="Sigla"
+						label="Nome"
 						value={doc.sigla}
 						editable={false}
 					/>

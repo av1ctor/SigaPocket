@@ -63,7 +63,13 @@ public class MainApplication extends Application implements ReactApplication
 		super.onCreate();
 		SoLoader.init(this, /* native exopackage */ false);
 		initializeFlipper(this, getReactNativeHost().getReactInstanceManager());
+		createNotificationChannel();
 		startDocsSyncJob();
+	}
+
+	private void createNotificationChannel()
+	{
+		Util.createNotificationChannel(this, SigaPocketModule.CHANNEL_ID, SigaPocketModule.CHANNEL_NAME);
 	}
 
 	private void startDocsSyncJob()
