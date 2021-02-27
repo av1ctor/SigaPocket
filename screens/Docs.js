@@ -12,7 +12,7 @@ const Docs = ({navigation, route}) =>
 	const {groupId} = route.params;
 	const group = state.groups.find(g => g.grupo === groupId) || {};
 
-	const renderDoc = (group, roupId, doc) =>
+	const renderDoc = (group, groupId, doc) =>
 	{
 		return (
 			<List.Item
