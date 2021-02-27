@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Button, Dialog, Portal} from 'react-native-paper';
+import {Button, Dialog, Portal, Text} from 'react-native-paper';
 
 const DialogPanel = ({visible, onDismiss, title, icon, children}) =>
 {
@@ -10,7 +10,7 @@ const DialogPanel = ({visible, onDismiss, title, icon, children}) =>
 				visible={visible} 
 				onDismiss={onDismiss}>
 				<Dialog.Title>
-					{title}
+					<Text>{title}</Text>
 				</Dialog.Title>
 				<Dialog.Content>
 					{children}

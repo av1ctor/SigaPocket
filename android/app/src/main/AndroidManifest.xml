@@ -30,8 +30,6 @@
       </activity>
       <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
 
-      <service android:name=".DocsSyncService" />
-
       <service android:name=".DocsSyncJob" android:permission="android.permission.BIND_JOB_SERVICE"/>
 
       <!-- react-native-push-notification -->

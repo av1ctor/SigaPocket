@@ -17,9 +17,9 @@ export default class Notificator
 {
 	static onNotification = null;
 
-	static config(onNotification)
+	static onNotification(callback)
 	{
-		Notificator.onNotification = onNotification;
+		Notificator.onNotification = callback;
 	}
 
 	static notify(msg, channelId)

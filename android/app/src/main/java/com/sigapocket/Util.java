@@ -1,5 +1,6 @@
 package com.sigapocket;
 
+import java.util.List;
 import android.os.Bundle;
 import android.os.Build;
 import android.app.Notification;
@@ -21,7 +22,8 @@ import android.util.Log;
 
 public class Util
 {
-    public static void scheduleJob(Context context, long seconds, Class klass)
+    public static void scheduleJob(
+		Context context, long seconds, Class klass)
     {
 		ComponentName serviceComponent = new ComponentName(context, klass);
         JobInfo.Builder builder = new JobInfo.Builder(0, serviceComponent);
@@ -45,4 +47,26 @@ public class Util
 		return channelId;
 	}	
 
+	public static boolean isAppOnForeground(Context context) 
+	{
+		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+		
+		List<ActivityManager.RunningAppProcessInfo> appProcesses =
+			activityManager.getRunningAppProcesses();
+		if (appProcesses == null) 
+		{
+			return false;
+		}
+		
+		final String packageName = context.getPackageName();
+		for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) 
+		{
+			if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
+				appProcess.processName.equals(packageName)) 
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 }

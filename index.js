@@ -15,7 +15,6 @@ import {OptionsContextProvider} from './contexts/Options';
 import {UserContextProvider} from './contexts/User';
 import {DocsContextProvider} from './contexts/Docs';
 import SigaApi from './components/SigaApi';
-import DocsSyncTask from './tasks/DocsSyncTask';
 import Main from './Main';
 import {name as appName} from './app.json';
 
@@ -38,5 +37,4 @@ export default function App()
 	);
 }
 
-AppRegistry.registerHeadlessTask('DocsSyncTask', () => DocsSyncTask);
 AppRegistry.registerComponent(appName, () => App);

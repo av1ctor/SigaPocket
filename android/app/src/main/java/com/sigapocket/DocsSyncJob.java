@@ -1,23 +1,26 @@
 package com.sigapocket;
 
-import java.util.List;
+import javax.annotation.Nullable;
 import android.app.Application;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.app.job.JobParameters;
 import android.app.job.JobService;
 import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import com.facebook.react.HeadlessJsTaskService;
+import com.facebook.react.ReactApplication;
+import com.facebook.react.ReactNativeHost;
+import com.facebook.react.bridge.ReactContext;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
 import android.util.Log;
 
 public class DocsSyncJob extends JobService
 {
-	//NOTA: se for usado 60 secs ou mais, o app vai entrar em modo background e, mesmo com notification, nunca será iniciado o headless service
-	public static long INTERVAL = 30 * 1; // em segundos
+	public static long INTERVAL = 60; // em segundos
 	
 	@Override
 	public boolean onStartJob(JobParameters params) 
@@ -26,12 +29,7 @@ public class DocsSyncJob extends JobService
 		
 		try
 		{
-			if(!isAppOnForeground(context)) 
-			{
-				Intent serviceIntent = new Intent(context, DocsSyncService.class);
-				context.startService(serviceIntent);
-				HeadlessJsTaskService.acquireWakeLockNow(context);
-			}
+			sendEvent(getReactNativeHost().getReactInstanceManager().getCurrentReactContext(), "DocsSyncEvent", null);
 		}
 		catch(Exception e)
 		{
@@ -51,22 +49,18 @@ public class DocsSyncJob extends JobService
 		return true;
 	}
 
-	private boolean isAppOnForeground(Context context) 
+	private void sendEvent(
+		ReactContext reactContext,
+        String eventName,
+        @Nullable WritableMap params) 
 	{
-		ActivityManager activityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-		List<ActivityManager.RunningAppProcessInfo> appProcesses =
-		activityManager.getRunningAppProcesses();
-		if (appProcesses == null) {
-			return false;
-		}
-		final String packageName = context.getPackageName();
-		for (ActivityManager.RunningAppProcessInfo appProcess : appProcesses) {
-			if (appProcess.importance ==
-			ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND &&
-				appProcess.processName.equals(packageName)) {
-				return true;
-			}
-		}
-		return false;
+ 		reactContext
+     		.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+     		.emit(eventName, params);
 	}
+
+	private ReactNativeHost getReactNativeHost() 
+	{
+		return ((ReactApplication)getApplication()).getReactNativeHost();
+	}	
 }

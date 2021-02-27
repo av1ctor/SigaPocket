@@ -1,69 +1,45 @@
 import React, {useContext, useEffect} from 'react';
 import PropTypes from 'prop-types';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {SafeAreaView, ScrollView} from 'react-native';
+import {NativeEventEmitter, NativeModules, SafeAreaView, ScrollView} from 'react-native';
 import {List, Text} from 'react-native-paper';
 import {Mutex} from 'async-mutex';
+import {OptionsContext} from '../contexts/Options';
 import {DocsContext} from '../contexts/Docs';
+import Notificator from '../components/Notificator';
 import styles from '../styles/default';
+
+const {SigaPocketModule} = NativeModules;
+const eventEmitter = new NativeEventEmitter(SigaPocketModule);
+
+const CHANNEL_ID = 'siga-pocket-chan';
 
 const Groups = ({api, showMessage, navigation}) =>
 {
+	const [options, ] = useContext(OptionsContext);
 	const [state, dispatch] = useContext(DocsContext);
 
 	const config = {
-		check: {
-			timer: null,
-			mutex: new Mutex()
-		},
-		load: {
-			timer: null,
-			mutex: new Mutex(),
-			groups: null
-		}
+		mutex: new Mutex(),
+		groups: null
 	};
 
 	useEffect(() => 
 	{
 		loadGroups();
-		config.load.timer = setInterval(() => loadGroups(), 1000*60*1);
-		
-		checkIfUpdated();
-		config.check.timer = setInterval(() => checkIfUpdated(), 1000*3);
-		
-		return () => {
-			clearInterval(config.load.timer); 
-			clearInterval(config.check.timer);
-		};
 	}, []);
 
-	const checkIfUpdated = async () =>
+	useEffect(() => 
 	{
-		if(config.check.mutex.isLocked())
+		if(options.sync)
 		{
-			return;
+			const subs = eventEmitter.addListener('DocsSyncEvent', () => loadGroups());
+			return () => eventEmitter.removeSubscription(subs);
 		}
-
-		const release = await config.check.mutex.acquire();
-
-		try
-		{
-			const groups = await AsyncStorage.getItem('@groups');
-			if(groups)
-			{
-				await AsyncStorage.removeItem('@groups');
-				updateGroups(JSON.parse(groups));
-			}
-		}
-		finally
-		{
-			release();
-		}
-	};
+	}, [options.sync]);
 
 	const updateGroups = (groups) =>
 	{
-		config.load.groups = groups;
+		config.groups = groups;
 		dispatch({
 			type: 'SET_GROUPS',
 			payload: groups || [],
@@ -72,28 +48,37 @@ const Groups = ({api, showMessage, navigation}) =>
 
 	const loadGroups = async () =>
 	{
-		if(config.load.mutex.isLocked())
+		if(config.mutex.isLocked())
 		{
 			return;
 		}
 
-		const release = await config.load.mutex.acquire();
+		const release = await config.mutex.acquire();
 
 		try
 		{
 			const groups = await api.findGroups();
 			if(!groups)
 			{
-				if(!config.load.groups)
+				if(!config.groups)
 				{
 					showMessage(['Erro ao carregar grupos de documentos'], 'error');
 				}
 			}
 			else
 			{
-				if(!api.compareGroups(config.load.groups, groups))
+				if(!api.compareGroups(config.groups, groups))
 				{
+					const firstRun = config.groups === null;
 					updateGroups(groups);
+
+					if(!firstRun && options.sync)
+					{
+						if(!await SigaPocketModule.isAppOnForeground())
+						{
+							Notificator.notify('Atualização ocorrida na mesa', CHANNEL_ID);
+						}
+					}
 				}
 			}
 		}
