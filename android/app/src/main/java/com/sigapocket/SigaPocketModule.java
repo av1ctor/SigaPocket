@@ -12,7 +12,7 @@ import java.util.HashMap;
 public class SigaPocketModule extends ReactContextBaseJavaModule
 {
     public static final String CHANNEL_ID = "siga-pocket-chan";
-    public static final String CHANNEL_NAME = "SigaPocketChannel";
+    public static final String CHANNEL_NAME = "Atualizações";
     
     public SigaPocketModule(ReactApplicationContext context)
     {

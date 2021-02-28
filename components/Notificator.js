@@ -26,7 +26,8 @@ export default class Notificator
 	{
 		PushNotification.localNotification({
 			channelId: channelId,
-			message: msg
+			message: msg,
+			smallIcon: ''
 		});
 	}
 }
