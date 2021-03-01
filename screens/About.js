@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import {Linking, Pressable, View} from 'react-native';
+import {Linking, View} from 'react-native';
 import {IconButton, Paragraph, Subheading} from 'react-native-paper';
 import DialogPanel from '../components/DialogPanel';
 import styles from '../styles/default';
