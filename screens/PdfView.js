@@ -20,34 +20,57 @@ const PdfView = ({api, showMessage, route}) =>
 			const res = await api.findPdf(sigla, false, (completed) => setGenerated(completed));
 			if(res === null)
 			{
-				showMessage('Falha ao carregar PDF', 'error');
+				showMessage('Falha ao gerar PDF', 'error');
 				return;
 			}
     
 			setUrl(res);
 			setGenerated(1.0);
+			setLoaded(0.0);
 		})();
 	}, [route.params.sigla]);
 
 	return (
 		<>
-			<ProgressBar 
-				progress={loaded} 
-				color={Colors.red800}
-				visible={loaded < 1.0} 
-			/>
+			{url?
+				loaded > 0.0 &&
+					<ProgressBar 
+						progress={loaded}
+						color={Colors.red800}
+						visible={loaded < 1.0} 
+					/>
+				:
+				generated > 0.0 &&
+					<ProgressBar 
+						progress={generated}
+						color={Colors.red800}
+						visible={generated < 1.0}
+					/>
+				
+			}
+			
 			<View style={styles.pdfContainer}>
 				{url?
-					<Pdf
-						source={{uri: url, cache: true}}
-						style={localStyles.pdf}
-						onLoadProgress={(percent) => setLoaded(percent)}
-						onLoadComplete={() => setLoaded(1.0)}
-						activityIndicator={<></>}
-					/>:
-					<Text>
-						Gerando: {(generated * 100).toFixed(0)}%
-					</Text>
+					<>
+						{loaded < 1.0 &&
+							<Text>
+								Carregando: {(loaded * 100).toFixed(0)}%
+							</Text>
+						}
+						<Pdf
+							source={{uri: url, cache: true}}
+							style={localStyles.pdf}
+							onLoadProgress={(percent) => setLoaded(percent)}
+							onLoadComplete={() => setLoaded(1.0)}
+							onError={() => showMessage('Falha ao carregar PDF', 'error')}
+							activityIndicator={<></>}
+						/>
+					</>:
+					<>
+						<Text>
+							Gerando: {(generated * 100).toFixed(0)}%
+						</Text>
+					</>
 				}
 			</View>
 			<LoadingIndicator

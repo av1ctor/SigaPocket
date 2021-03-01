@@ -1,14 +1,15 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView, View} from 'react-native';
 import {Chip, List, Text, TextInput, Divider, Colors, ActivityIndicator} from 'react-native-paper';
 import {DocsContext} from '../contexts/Docs';
 import styles from '../styles/default';
 
-const Doc = ({api, navigation, route}) =>
+const RELOAD_INTERVAL = 60 * 1000;
+
+const Doc = ({api, showMessage, navigation, route}) =>
 {
-	const [state, ] = useContext(DocsContext);
-	const [parts, setParts] = useState();
+	const [state, dispatch] = useContext(DocsContext);
 
 	const {groupId, docId} = route.params;
 	const group = state.groups.find(g => g.grupo === groupId) || {};
@@ -16,12 +17,28 @@ const Doc = ({api, navigation, route}) =>
 
 	useEffect(() => 
 	{
-		listParts();
+		loadParts();
 	}, [route.params.docId]);
 
-	const listParts = async () =>
+	const loadParts = async () =>
 	{
-		setParts(await api.findDocParts(doc.sigla));
+		if(!doc.parts || !doc.parts.list /*|| Date.now() > doc.parts.date + RELOAD_INTERVAL*/)
+		{
+			const parts = await api.findDocParts(doc.sigla);
+			if(parts)
+			{
+				dispatch({
+					type: 'SET_DOC_PARTS',
+					groupId: groupId,
+					docId: docId,
+					payload: parts
+				});
+			}
+			else
+			{
+				showMessage('Falha ao carregar lista de documentos', 'error');
+			}
+		}
 	};
 	
 	const renderParts = (parts) =>
@@ -104,7 +121,7 @@ const Doc = ({api, navigation, route}) =>
 					<Text>
 						Documentos
 					</Text>
-					{renderParts(parts)}
+					{renderParts(doc.parts && doc.parts.list)}
 				</View>
 			</ScrollView>              
 		</SafeAreaView>
@@ -113,6 +130,7 @@ const Doc = ({api, navigation, route}) =>
 
 Doc.propTypes = {
 	api: PropTypes.object,
+	showMessage: PropTypes.func,
 	navigation: PropTypes.object,
 	route: PropTypes.object,
 };

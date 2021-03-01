@@ -16,6 +16,28 @@ const reducer = (state, action) =>
 			groups: action.payload
 		};
 
+	case 'SET_DOC_PARTS':
+		return {
+			groups: state.groups.map(group => 
+				group.grupo !== action.groupId? 
+					group: 
+					{
+						...group, 
+						grupoDocs: group.grupoDocs.map(doc => 
+							doc.codigo !== action.docId? 
+								doc: 
+								{
+									...doc, 
+									parts: {
+										list: action.payload, 
+										date: Date.now()
+									}
+								}
+						)
+					}
+			)
+		};
+
 	default:
 		throw new Error();
 	}

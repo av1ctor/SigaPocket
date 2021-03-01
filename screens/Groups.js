@@ -65,7 +65,7 @@ const Groups = ({api, showMessage, navigation}) =>
 			{
 				if(!config.groups)
 				{
-					showMessage(['Erro ao carregar grupos de documentos'], 'error');
+					showMessage('Falha ao carregar grupos de documentos', 'error');
 				}
 			}
 			else

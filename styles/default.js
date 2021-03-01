@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 		justifyContent: 'flex-start',
 		alignItems: 'center',
-		marginTop: 25,
+		marginTop: 8,
 	},
 	stateContainer: {
 		paddingTop: 8,
@@ -41,6 +41,12 @@ const styles = StyleSheet.create({
 		flex: 1,
 		alignItems: 'center',
 		justifyContent: 'center',
+	},
+	alertError: {
+		backgroundColor: '#a00',
+	},
+	alertGeneral: {
+		backgroundColor: '#0a0',
 	}
 });
 

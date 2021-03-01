@@ -316,11 +316,19 @@ export default class SigaApi
 		{
 			isJsonRequest = false, 
 			isJsonResponse = true, 
-			abortController = null
+			abortController = null,
+			timeout = 30
 		})
 	{
+		let timeoutTimer = null;
+
 		try
 		{
+			if(timeout && !abortController)
+			{
+				abortController = new AbortController();
+			}
+
 			const options = {
 				credentials: 'include',
 				method: method,
@@ -338,8 +346,25 @@ export default class SigaApi
 			}
 
 			let errors = null;
+			
+			if(timeout)
+			{
+				timeoutTimer = setTimeout(() => 
+				{
+					errors = ['Connection timeout'];
+					abortController && abortController.abort(); 
+				}, 
+				timeout * 1000);
+			}
+			
 			const res = await fetch(url, options)
-				.catch((e) => errors = e);
+				.catch((e) => {if(!errors) errors = e.message;});
+
+			if(timeoutTimer)
+			{
+				clearTimeout(timeoutTimer);
+				timeoutTimer = null;
+			}
 
 			if(errors === null && res && res.ok)
 			{
@@ -366,9 +391,13 @@ export default class SigaApi
 			}
 			else
 			{
-				const body = res && isJsonResponse && res.json && res.json.constructor === Function? 
-					await res.json(): 
-					await res.text();
+				const body = res? 
+					isJsonResponse && res.json && res.json.constructor === Function? 
+						await res.json(): 
+						res.text && res.text.constructor === Function? 
+							await res.text():
+							null:
+					null;
 				
 				return {
 					errors: errors || [], 
@@ -379,6 +408,11 @@ export default class SigaApi
 		}
 		catch (e)
 		{
+			if(timeoutTimer)
+			{
+				clearTimeout(timeoutTimer);
+			}
+
 			return {
 				errors: [e.message], 
 				data: null

@@ -6,7 +6,7 @@
 import React, {useState} from 'react';
 import PropTypes from 'prop-types';
 import {createStackNavigator} from '@react-navigation/stack';
-import {Colors, IconButton} from 'react-native-paper';
+import {Colors, IconButton, Snackbar} from 'react-native-paper';
 import Logon from './screens/Logon';
 import Groups from './screens/Groups';
 import Docs from './screens/Docs';
@@ -15,6 +15,7 @@ import PdfView from './screens/PdfView';
 import About from './screens/About';
 import Options from './screens/Options';
 import MenuPanel from './components/MenuPanel';
+import styles from './styles/default';
 
 const Stack = createStackNavigator();
 
@@ -23,10 +24,28 @@ const Main = ({api}) =>
 	const [menuVisible, setMenuVisible] = useState(false);
 	const [aboutVisible, setAboutVisible] = useState(false);
 	const [optionsVisible, setOptionsVisible] = useState(false);
+	const [alertMsg, setAlertMsg] = useState({text: '', kind: ''});
 	
 	const showMessage = (msg, kind) =>
 	{
-		alert(msg);
+		if(msg)
+		{
+			setAlertMsg({
+				text: msg.constructor !== Array? 
+					msg.constructor !== String?
+						JSON.stringify(msg):
+						msg: 
+					msg.reduce((text, m, index) => text += (index > 0? ', ':'') + m),
+				kind: kind,
+			});
+		}
+		else
+		{
+			setAlertMsg({
+				text: '',
+				kind: ''
+			});
+		}
 	};
 
 	const items = [
@@ -68,6 +87,14 @@ const Main = ({api}) =>
 			<About
 				visible={aboutVisible}
 				onDismiss={() => setAboutVisible(false)} />
+			
+			<Snackbar 
+				visible={alertMsg.text !== ''}
+				style={alertMsg.kind === 'error'? styles.alertError: styles.alertGeneral}
+				onDismiss={() => showMessage()}
+			>
+				{alertMsg.text}
+			</Snackbar>
 
 			<Stack.Navigator initialRouteName="Logon">
 				<Stack.Screen
