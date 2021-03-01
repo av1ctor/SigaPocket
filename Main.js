@@ -51,7 +51,7 @@ const Main = ({api}) =>
 	const items = [
 		{
 			title: 'Opções',
-			icon: 'format-list-bulleted-square',
+			icon: 'cog-outline',
 			onPress: () => setOptionsVisible(true)
 		},		
 		{

@@ -30,7 +30,7 @@ const Options = ({visible, onDismiss}) =>
 		<DialogPanel
 			visible={visible}
 			title="Opções"
-			icon="format-list-bulleted-square"
+			icon="cog-outline"
 			onDismiss={onDismiss}>
 			<View style={styles.switchContainer}>
 				<Text>Exibir expedientes da unidade</Text>

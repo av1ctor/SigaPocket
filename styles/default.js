@@ -47,6 +47,14 @@ const styles = StyleSheet.create({
 	},
 	alertGeneral: {
 		backgroundColor: '#0a0',
+	},
+	rowContainer: {
+		flexDirection: 'row', 
+		alignItems: 'center'
+	},
+	dialogTitle: {
+		flexDirection: 'row', 
+		alignItems: 'center',
 	}
 });
 
