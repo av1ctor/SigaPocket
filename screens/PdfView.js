@@ -79,6 +79,7 @@ const PdfView = ({api, showMessage, route}) =>
 						<Pdf
 							source={{uri: part.url, cache: true}}
 							style={localStyles.pdf}
+							maxScale={5}
 							onLoadProgress={(percent) => setLoaded(percent)}
 							onLoadComplete={() => setLoaded(1.0)}
 							onError={() => showMessage('Falha ao carregar PDF', 'error')}
