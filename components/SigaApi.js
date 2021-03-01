@@ -284,7 +284,8 @@ export default class SigaApi
 				{
 					res.push({
 						sigla: match[2].replace('.pdf', ''),
-						title: match[3].trim()
+						title: match[3].trim(),
+						url: null
 					});
 				}
 

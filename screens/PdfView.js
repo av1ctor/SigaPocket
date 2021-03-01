@@ -1,38 +1,57 @@
-import React, {useState, useEffect} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {StyleSheet, Dimensions, View} from 'react-native';
 import {Colors, ProgressBar, Text} from 'react-native-paper';
 import Pdf from 'react-native-pdf';
+import {DocsContext} from '../contexts/Docs';
 import LoadingIndicator from '../components/LoadingIndicator';
 import styles from '../styles/default';
 
 const PdfView = ({api, showMessage, route}) =>
 {
-	const [url, setUrl] = useState(null);
+	const [state, dispatch] = useContext(DocsContext);
 	const [generated, setGenerated] = useState(0.0);
 	const [loaded, setLoaded] = useState(1.0);
 
+	const {groupId, docId, partId} = route.params;
+	const group = state.groups.find(g => g.grupo === groupId) || {};
+	const doc = (group.grupoDocs || []).find(d => d.codigo === docId) || {};
+	const part = ((doc.parts && doc.parts.list) || []).find(p => p.sigla === partId) || {};
+
 	useEffect(() =>
 	{
-		(async () =>
+		loadPdf(route.params.partId);
+	}, [route.params.partId]);
+
+	const loadPdf = async (sigla) =>
+	{
+		if(!sigla || part.url)
 		{
-			const {sigla} = route.params;
-			const res = await api.findPdf(sigla, false, (completed) => setGenerated(completed));
-			if(res === null)
-			{
-				showMessage('Falha ao gerar PDF', 'error');
-				return;
-			}
-    
-			setUrl(res);
-			setGenerated(1.0);
-			setLoaded(0.0);
-		})();
-	}, [route.params.sigla]);
+			return;
+		}
+
+		const url = await api.findPdf(sigla, false, (completed) => setGenerated(completed));
+		if(url === null)
+		{
+			showMessage('Falha ao gerar PDF', 'error');
+			return;
+		}
+
+		dispatch({
+			type: 'SET_DOC_PART_URL',
+			groupId: groupId,
+			docId: docId,
+			partId: sigla,
+			payload: url
+		});
+
+		setGenerated(1.0);
+		setLoaded(0.0);
+	};
 
 	return (
 		<>
-			{url?
+			{part.url?
 				loaded > 0.0 &&
 					<ProgressBar 
 						progress={loaded}
@@ -50,7 +69,7 @@ const PdfView = ({api, showMessage, route}) =>
 			}
 			
 			<View style={styles.pdfContainer}>
-				{url?
+				{part.url?
 					<>
 						{loaded < 1.0 &&
 							<Text>
@@ -58,7 +77,7 @@ const PdfView = ({api, showMessage, route}) =>
 							</Text>
 						}
 						<Pdf
-							source={{uri: url, cache: true}}
+							source={{uri: part.url, cache: true}}
 							style={localStyles.pdf}
 							onLoadProgress={(percent) => setLoaded(percent)}
 							onLoadComplete={() => setLoaded(1.0)}
@@ -74,7 +93,7 @@ const PdfView = ({api, showMessage, route}) =>
 				}
 			</View>
 			<LoadingIndicator
-				loading={!url} />
+				loading={!part.url} />
 		</>
 	);
 };

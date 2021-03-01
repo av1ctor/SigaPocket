@@ -59,7 +59,7 @@ const Doc = ({api, showMessage, navigation, route}) =>
 					title={part.title}
 					left={props => <List.Icon {...props} icon="file-pdf" />} 
 					right={props => <List.Icon {...props} icon="chevron-right" />}
-					onPress={() => navigation.navigate('PdfView', {sigla: part.sigla})}
+					onPress={() => navigation.navigate('PdfView', {groupId: groupId, docId: docId, partId: part.sigla})}
 				/>
 			)
 		);

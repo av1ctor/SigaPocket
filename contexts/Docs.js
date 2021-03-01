@@ -38,6 +38,35 @@ const reducer = (state, action) =>
 			)
 		};
 
+	case 'SET_DOC_PART_URL':
+		return {
+			groups: state.groups.map(group => 
+				group.grupo !== action.groupId? 
+					group: 
+					{
+						...group, 
+						grupoDocs: group.grupoDocs.map(doc => 
+							doc.codigo !== action.docId? 
+								doc: 
+								{
+									...doc, 
+									parts: {
+										...doc.parts,
+										list: doc.parts.list.map(part => 
+											part.sigla !== action.partId?
+												part:
+												{
+													...part,
+													url: action.payload
+												}
+										)
+									}
+								}
+						)
+					}
+			)
+		};
+
 	default:
 		throw new Error();
 	}
