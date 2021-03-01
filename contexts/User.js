@@ -4,16 +4,24 @@ import PropTypes from 'prop-types';
 export const UserContext = createContext();
 
 const initState = {
-	user: {}
+	user: {},
+	loggedIn: false
 };
 
 const reducer = (state, action) => 
 {
 	switch(action.type) 
 	{
-	case 'SET_USER':
+	case 'LOGON':
 		return {
-			user: action.payload
+			user: action.payload,
+			loggedIn: true,
+		};
+
+	case 'LOGOUT':
+		return {
+			user: {},
+			loggedIn: false,
 		};
 
 	default:

@@ -83,8 +83,11 @@ const Logon = ({api, showMessage, navigation}) =>
 			}
 
 			dispatch({
-				type: 'SET_USER',
-				payload: res.data
+				type: 'LOGON',
+				payload: {
+					...res.data,
+					loggedIn: true,
+				}
 			});
 
 			storeUser(username, password);
