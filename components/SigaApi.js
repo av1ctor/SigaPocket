@@ -106,7 +106,18 @@ export default class SigaApi
 			return null;
 		}
 		
-		return res.data.map(group => ({...group, grupoIcone: SigaApi.remapIcon(group.grupoIcone)}));
+		return res.data.map(group => ({
+			...group,
+			grupoDocs: group.grupoDocs?
+				group.grupoDocs.map(doc => ({
+					...doc,
+					descr: doc.descr? 
+						doc.descr.replace('Complemento do Assunto: ', ''):
+						''
+				})):
+				null,
+			grupoIcone: SigaApi.remapIcon(group.grupoIcone)
+		}));
 	}
 
 	compareGroups(v1, v2)
