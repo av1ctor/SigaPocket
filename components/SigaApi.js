@@ -324,6 +324,9 @@ export default class SigaApi
 			const options = {
 				credentials: 'include',
 				method: method,
+				headers: {
+					'Accept-Encoding': 'gzip,deflate'
+				},
 				signal: abortController && abortController.signal
 			};
 
