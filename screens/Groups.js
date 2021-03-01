@@ -1,11 +1,10 @@
 import React, {useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-import {NativeEventEmitter, NativeModules, SafeAreaView, ScrollView} from 'react-native';
+import {NativeEventEmitter, NativeModules, RefreshControl, SafeAreaView, ScrollView} from 'react-native';
 import {List, Text} from 'react-native-paper';
 import {Mutex} from 'async-mutex';
 import {OptionsContext} from '../contexts/Options';
 import {DocsContext} from '../contexts/Docs';
-import LoadingIndicator from '../components/LoadingIndicator';
 import Notificator from '../components/Notificator';
 import styles from '../styles/default';
 
@@ -18,7 +17,7 @@ const Groups = ({api, showMessage, navigation}) =>
 {
 	const [options, ] = useContext(OptionsContext);
 	const [state, dispatch] = useContext(DocsContext);
-	const [loading, setLoading] = useState(false);
+	const [refreshing, setRefreshing] = useState(false);
 
 	const config = {
 		mutex: new Mutex(),
@@ -59,7 +58,7 @@ const Groups = ({api, showMessage, navigation}) =>
 
 		try
 		{
-			setLoading(true);
+			setRefreshing(true);
 
 			const groups = await api.findGroups(options.lota);
 			if(!groups)
@@ -88,7 +87,7 @@ const Groups = ({api, showMessage, navigation}) =>
 		}
 		finally
 		{
-			setLoading(false);
+			setRefreshing(false);
 			release();
 		}
 	};
@@ -120,15 +119,16 @@ const Groups = ({api, showMessage, navigation}) =>
 		
 	return (
 		<>
-			<SafeAreaView style={styles.safeAreaView}>
-				<ScrollView style={styles.scrollView}>
+			<SafeAreaView 
+				style={styles.safeAreaView}>
+				<ScrollView 
+					style={styles.scrollView}
+					refreshControl={<RefreshControl
+						refreshing={refreshing} 
+						onRefresh={() => loadGroups()} />}>
 					{groups.map(group => renderGroup(group))}
 				</ScrollView>              
 			</SafeAreaView>
-			{groups.length === 0 && 
-				<LoadingIndicator
-					loading={loading} />
-			}
 		</>
 	);
 };
