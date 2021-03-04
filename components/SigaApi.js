@@ -1,3 +1,4 @@
+import { memoize } from "./Util";
 
 const ROOT_PATH = process.env.NODE_ENV !== 'development' || true?  
 	'https://www.documentos.spsempapel.sp.gov.br':
@@ -43,9 +44,9 @@ export default class SigaApi
 		return {errors: null, data: user || {}};
 	}
 
-	async findUser(cpf)
+	findUser = memoize(async (cpfOrId) =>
 	{
-		const res = await this.requestURL('GET', `${USER_URL}?cpf=${cpf}`, null, {isJsonResponse: true});
+		const res = await this.requestURL('GET', `${USER_URL}?${cpfOrId.length === 11? 'cpf': 'idPessoaIni'}=${cpfOrId}`, null, {isJsonResponse: true});
 		if(res.errors !== null)
 		{
 			return null;
@@ -55,14 +56,14 @@ export default class SigaApi
 		return data.list && data.list.length > 0?
 			data.list[0]:
 			{};
-	}
+	});
 
 	static remapIcon(icon)
 	{
 		return iconToIcon[icon] || 'folder';
 	}
 
-	async findGroups(daLotacao = false, idVisualizacao = 0)
+	findGroups = memoize(async (daLotacao = false, idVisualizacao = 0) =>
 	{
 		const buildFormData = (params) =>
 		{
@@ -118,7 +119,7 @@ export default class SigaApi
 				null,
 			grupoIcone: SigaApi.remapIcon(group.grupoIcone)
 		}));
-	}
+	}, {ttl: 30*1000});
 
 	compareGroups(v1, v2)
 	{
@@ -228,7 +229,7 @@ export default class SigaApi
 		return true;
 	}
 
-	async findPdf(nome, semMarcas, onProgress)
+	findPdf = memoize(async (nome, semMarcas, onProgress) =>
 	{
 		const extractText = (from, pattern) =>
 		{
@@ -276,9 +277,9 @@ export default class SigaApi
 		}
 
 		return ROOT_PATH + url;
-	}
+	}, {ttl: 5*60*1000});
 
-	async findDocParts(sigla)
+	findDocParts = memoize(async (sigla) =>
 	{
 		const extrairPartes = (text) =>
 		{
@@ -323,7 +324,7 @@ export default class SigaApi
 		const partes = extrairPartes(text);
 
 		return partes;
-	}
+	}, {ttl: 5*60*1000});
 
 	async requestURL(
 		method, 

@@ -26,6 +26,7 @@ const Groups = ({api, parent, navigation}) =>
 
 	useEffect(() => 
 	{
+		navigation.setOptions({headerTitle: `Mesa ${options.lota? 'da unidade': 'do usuário'}`});
 		loadGroups();
 	}, [options.lota]);
 

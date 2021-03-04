@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView, View} from 'react-native';
 import {Chip, List, Text, TextInput, Divider, Colors, ActivityIndicator} from 'react-native-paper';
@@ -10,6 +10,7 @@ const RELOAD_INTERVAL = 60 * 1000;
 const Doc = ({api, parent, navigation, route}) =>
 {
 	const [state, dispatch] = useContext(DocsContext);
+	const [user, setUser] = useState({});
 
 	const {groupId, docId} = route.params;
 	const group = state.groups.find(g => g.grupo === groupId) || {};
@@ -19,6 +20,7 @@ const Doc = ({api, parent, navigation, route}) =>
 	{
 		navigation.setOptions({headerTitle: doc.sigla});
 		loadParts();
+		loadUser(getPessoa());
 	}, [route.params.docId]);
 
 	const loadParts = async () =>
@@ -40,6 +42,20 @@ const Doc = ({api, parent, navigation, route}) =>
 				parent.showMessage('Falha ao carregar lista de documentos', 'error');
 			}
 		}
+	};
+
+	const getPessoa = () =>
+	{
+		if(!doc.list || doc.list.length === 0)
+		{
+			return 0;
+		}
+		return doc.list[doc.list.length-1].pessoa;
+	};
+
+	const loadUser = async (id) => {
+		const user = await api.findUser(id);
+		setUser(user);
 	};
 
 	const Part = ({part, index}) =>
@@ -133,6 +149,13 @@ const Doc = ({api, parent, navigation, route}) =>
 					<TextInput
 						label="Tempo"
 						value={doc.tempoRelativo}
+						editable={false}
+					/>
+				</View>
+				<View style={styles.view}>
+					<TextInput
+						label="Pessoa"
+						value={user.nome}
 						editable={false}
 					/>
 				</View>
