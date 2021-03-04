@@ -39,7 +39,7 @@ public class Util
         Context context, String channelId, String channelName)
 	{
 		NotificationChannel chan = new NotificationChannel(
-            channelId, channelName, NotificationManager.IMPORTANCE_NONE);
+            channelId, channelName, NotificationManager.IMPORTANCE_HIGH);
 		chan.setLightColor(Color.BLUE);
 		chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
 		NotificationManager service = (NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE);
