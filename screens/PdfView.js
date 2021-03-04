@@ -7,7 +7,7 @@ import {DocsContext} from '../contexts/Docs';
 import LoadingIndicator from '../components/LoadingIndicator';
 import styles from '../styles/default';
 
-const PdfView = ({api, parent, route}) =>
+const PdfView = ({api, parent, navigation, route}) =>
 {
 	const [state, dispatch] = useContext(DocsContext);
 	const [generated, setGenerated] = useState(0.0);
@@ -28,6 +28,7 @@ const PdfView = ({api, parent, route}) =>
 
 	useEffect(() =>
 	{
+		navigation.setOptions({headerTitle: part.title || part.sigla});
 		loadPdf(route.params.partId);
 		parent.appendMenu(items);
 		return () => parent.restoreMenu();
@@ -125,6 +126,7 @@ const localStyles = StyleSheet.create({
 PdfView.propTypes = {
 	api: PropTypes.object,
 	parent: PropTypes.object,
+	navigation: PropTypes.object,
 	route: PropTypes.object,
 };
 export default PdfView;
