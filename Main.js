@@ -5,6 +5,7 @@
 
 import React, {useContext, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
+import {Alert, BackHandler} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Snackbar} from 'react-native-paper';
 import {UserContext} from './contexts/User';
@@ -52,7 +53,36 @@ const Main = ({api}) =>
 	useEffect(() =>
 	{
 		setMenuItems(items);
+		const listener = BackHandler.addEventListener('hardwareBackPress', handleExit);
+		return () => listener.remove();
 	}, [user.loggedIn]);
+
+	const handleExit = () => 
+	{
+		if(user.loggedIn)
+		{
+			Alert.alert(
+				'Alerta', 
+				'Deseja sair ou trocar de usuário?', 
+				[
+					{
+						text: 'CANCELAR',
+						onPress: () => null,
+						style: 'cancel'
+					},
+					{ 
+						text: 'SIM', 
+						onPress: () => handleLogout() 
+					}
+				]);
+		}
+		else
+		{
+			BackHandler.exitApp();
+		}
+
+		return true;
+	};
 
 	const showMessage = (msg, kind) =>
 	{
