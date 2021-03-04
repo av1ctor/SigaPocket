@@ -1,12 +1,55 @@
-import React from 'react';
+import React, {useEffect, useState, useContext} from 'react';
 import PropTypes from 'prop-types';
+import {Alert, BackHandler} from 'react-native';
 import {Appbar, Menu, Divider} from 'react-native-paper';
+import {UserContext} from '../contexts/User';
 
-const NavBar = ({navigation, previous, scene, menuItems}) => 
+const NavBar = ({parent, navigation, previous, scene, menuItems}) => 
 {
-	const [visible, setVisible] = React.useState(false);
+	const [user, ] = useContext(UserContext);
+	const [visible, setVisible] = useState(false);
 	const openMenu = () => setVisible(true);
 	const closeMenu = () => setVisible(false);
+
+	useEffect(() =>
+	{
+		const listener = BackHandler.addEventListener('hardwareBackPress', handleExit);
+		return () => listener.remove();
+	}, []);
+
+	const handleExit = () => 
+	{
+		if(user.loggedIn)
+		{
+			if(!previous)
+			{
+				Alert.alert(
+					'Alerta', 
+					'Deseja sair ou trocar de usuário?', 
+					[
+						{
+							text: 'CANCELAR',
+							onPress: () => null,
+							style: 'cancel'
+						},
+						{ 
+							text: 'SIM', 
+							onPress: () => parent.doLogout() 
+						}
+					]);
+			}
+			else
+			{
+				navigation.goBack();
+			}
+		}
+		else
+		{
+			BackHandler.exitApp();
+		}
+
+		return true;
+	};
 
 	const options = scene.descriptor.options;
 	return (
@@ -43,6 +86,7 @@ const NavBar = ({navigation, previous, scene, menuItems}) =>
 };
 
 NavBar.propTypes = {
+	parent: PropTypes.object,
 	navigation: PropTypes.object,
 	previous: PropTypes.any,
 	scene: PropTypes.object,
