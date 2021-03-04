@@ -9,9 +9,10 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Image, View, SafeAreaView, ScrollView} from 'react-native';
 import {Button, Text, TextInput} from 'react-native-paper';
 import {USERNAME_, PASSWORD_} from '@env';
-import styles from '../styles/default';
+import {OptionsContext} from '../contexts/Options';
 import {UserContext} from '../contexts/User';
 import LoadingIndicator from '../components/LoadingIndicator';
+import styles from '../styles/default';
 
 const Logon = ({api, parent, navigation}) =>
 {
@@ -19,6 +20,7 @@ const Logon = ({api, parent, navigation}) =>
 	const [password, setPassword] = useState(PASSWORD_ || '');
 	const [loading, setLoading] = useState(false);
 	const [, dispatch] = useContext(UserContext);
+	const [options, ] = useContext(OptionsContext);
 
 	useEffect(() =>
 	{
@@ -108,7 +110,9 @@ const Logon = ({api, parent, navigation}) =>
 						<Image 
 							style={styles.logo}
 							// eslint-disable-next-line no-undef
-							source={require('../assets/logo-sem-papel-cor.png')}
+							source={options.dark?
+								require('../assets/logo-sem-papel-dark.png'):
+								require('../assets/logo-sem-papel-cor.png')}
 						/>
 					</View>
 
