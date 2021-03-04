@@ -14,10 +14,12 @@ import {UserContext} from '../contexts/User';
 import LoadingIndicator from '../components/LoadingIndicator';
 import styles from '../styles/default';
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const Logon = ({api, parent, navigation}) =>
 {
-	const [username, setUsername] = useState(USERNAME_ || '');
-	const [password, setPassword] = useState(PASSWORD_ || '');
+	const [username, setUsername] = useState(isDev? USERNAME_ || '': '');
+	const [password, setPassword] = useState(isDev? PASSWORD_ || '': '');
 	const [loading, setLoading] = useState(false);
 	const [, dispatch] = useContext(UserContext);
 	const [options, ] = useContext(OptionsContext);

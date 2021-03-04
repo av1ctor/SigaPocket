@@ -1,4 +1,4 @@
-import { memoize } from "./Util";
+import { memoize } from './Util';
 
 const ROOT_PATH = process.env.NODE_ENV !== 'development' || true?  
 	'https://www.documentos.spsempapel.sp.gov.br':

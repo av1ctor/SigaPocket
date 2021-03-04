@@ -128,12 +128,16 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    Properties properties = new Properties()
     defaultConfig {
         applicationId "com.sigapocket"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "0.9-beta"
+        if (rootProject.file("local.properties").exists()) {
+            properties.load(rootProject.file("local.properties").newDataInputStream())
+        }        
     }
     splits {
         abi {
@@ -150,17 +154,26 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            if (properties.getProperty("MYAPP_UPLOAD_STORE_FILE", null) != null) {
+                storeFile file(properties.getProperty("MYAPP_UPLOAD_STORE_FILE", null))
+                storePassword properties.getProperty("MYAPP_UPLOAD_STORE_PASSWORD", null)
+                keyAlias properties.getProperty("MYAPP_UPLOAD_KEY_ALIAS", null)
+                keyPassword properties.getProperty("MYAPP_UPLOAD_KEY_PASSWORD", null)
+            }
+        }
     }
     buildTypes {
         debug {
             signingConfig signingConfigs.debug
         }
         release {
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            if (properties.getProperty("MYAPP_UPLOAD_STORE_FILE", null) != null) {
+                signingConfig signingConfigs.release
+            }
+            else
+            {
+                signingConfig signingConfigs.debug
             }
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
