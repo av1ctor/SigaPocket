@@ -5,7 +5,8 @@ export const OptionsContext = createContext();
 
 const initState = {
 	sync: true,
-	lota: false
+	lota: false,
+	dark: false
 };
 
 const reducer = (state, action) => 
@@ -22,6 +23,12 @@ const reducer = (state, action) =>
 		return {
 			...state,
 			lota: action.payload
+		};
+
+	case 'SET_DARK':
+		return {
+			...state,
+			dark: action.payload
 		};
 
 	default:

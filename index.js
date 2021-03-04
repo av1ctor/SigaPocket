@@ -9,32 +9,23 @@
 import 'react-native-gesture-handler';
 import React from 'react';
 import {AppRegistry} from 'react-native';
-import {Provider as PaperProvider} from 'react-native-paper';
-import {NavigationContainer} from '@react-navigation/native';
 import {OptionsContextProvider} from './contexts/Options';
 import {UserContextProvider} from './contexts/User';
 import {DocsContextProvider} from './contexts/Docs';
-import SigaApi from './components/SigaApi';
-import Main from './Main';
 import {name as appName} from './app.json';
+import App from './App';
 
-const api = new SigaApi();
-
-export default function App() 
+export default function Index() 
 {
 	return (
 		<OptionsContextProvider>
 			<UserContextProvider>
 				<DocsContextProvider>
-					<PaperProvider>
-						<NavigationContainer>
-							<Main api={api} />
-						</NavigationContainer>
-					</PaperProvider>
+					<App />
 				</DocsContextProvider>
 			</UserContextProvider>
 		</OptionsContextProvider>
 	);
 }
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => Index);

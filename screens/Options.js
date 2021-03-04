@@ -26,6 +26,14 @@ const Options = ({visible, onDismiss}) =>
 		});
 	};
 	
+	const setDark = (value) =>
+	{
+		dispatch({
+			type: 'SET_DARK',
+			payload: value
+		});
+	};
+	
 	return (
 		<DialogPanel
 			visible={visible}
@@ -47,6 +55,15 @@ const Options = ({visible, onDismiss}) =>
 					value={state.sync} 
 					style={{marginLeft: 32}}
 					onValueChange={(value) => setSync(value)} 
+				/>
+			</View>
+			<Divider />
+			<View style={styles.switchContainer}>
+				<Text>Tema escuro</Text>
+				<Switch 
+					value={state.dark} 
+					style={{marginLeft: 32}}
+					onValueChange={(value) => setDark(value)} 
 				/>
 			</View>
 		</DialogPanel>        
