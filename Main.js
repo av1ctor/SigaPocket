@@ -3,7 +3,7 @@
  * @flow strict-local
  */
 
-import React, {useContext, useState} from 'react';
+import React, {useContext, useState, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {createStackNavigator} from '@react-navigation/stack';
 import {Snackbar} from 'react-native-paper';
@@ -22,10 +22,13 @@ const Stack = createStackNavigator();
 
 const Main = ({api}) =>
 {
+	const [user, userDispatch] = useContext(UserContext);
+
 	const items = [
 		{
 			title: 'Opções',
 			icon: 'cog-outline',
+			disabled: () => !user.loggedIn,
 			onPress: () => setOptionsVisible(true)
 		},		
 		{
@@ -36,15 +39,20 @@ const Main = ({api}) =>
 		{
 			title: 'Sair',
 			icon: 'logout',
+			disabled: () => !user.loggedIn,
 			onPress: () => handleLogout()
 		}
 	];
 
-	const [userState, userDispatch] = useContext(UserContext);
 	const [menuItems, setMenuItems] = useState(items);
 	const [aboutVisible, setAboutVisible] = useState(false);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 	const [alertMsg, setAlertMsg] = useState({text: '', kind: ''});
+
+	useEffect(() =>
+	{
+		setMenuItems(items);
+	}, [user.loggedIn]);
 
 	const showMessage = (msg, kind) =>
 	{
@@ -125,7 +133,7 @@ const Main = ({api}) =>
 						/>,
 				}}
 			>
-				{!userState.loggedIn?
+				{!user.loggedIn?
 					<Stack.Screen
 						name="Logon"
 						options={{headerTitle: 'Logon'}}

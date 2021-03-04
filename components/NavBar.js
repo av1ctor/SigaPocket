@@ -25,6 +25,12 @@ const NavBar = ({navigation, previous, scene, menuItems}) =>
 							key={index}
 							title={item.title}
 							icon={item.icon}
+							disabled={!item.disabled? 
+								false: 
+								item.disabled.constructor === Function? 
+									item.disabled(): 
+									item.disabled
+							}
 							onPress={() => {
 								closeMenu();
 								item.onPress && item.onPress();
