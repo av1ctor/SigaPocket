@@ -3,10 +3,10 @@
  * @flow strict-local
  */
 
-import React, {useContext, useState, useEffect} from 'react';
+import React, {useContext, useState} from 'react';
 import PropTypes from 'prop-types';
 import {createStackNavigator} from '@react-navigation/stack';
-import {Colors, IconButton, Snackbar} from 'react-native-paper';
+import {Snackbar} from 'react-native-paper';
 import {UserContext} from './contexts/User';
 import Logon from './screens/Logon';
 import Groups from './screens/Groups';
@@ -15,24 +15,37 @@ import Doc from './screens/Doc';
 import PdfView from './screens/PdfView';
 import About from './screens/About';
 import Options from './screens/Options';
-import MenuPanel from './components/MenuPanel';
 import styles from './styles/default';
+import NavBar from './components/NavBar';
 
 const Stack = createStackNavigator();
 
 const Main = ({api}) =>
 {
+	const items = [
+		{
+			title: 'Opções',
+			icon: 'cog-outline',
+			onPress: () => setOptionsVisible(true)
+		},		
+		{
+			title: 'Sobre',
+			icon: 'information',
+			onPress: () => setAboutVisible(true)
+		},		
+		{
+			title: 'Sair',
+			icon: 'logout',
+			onPress: () => handleLogout()
+		}
+	];
+
 	const [userState, userDispatch] = useContext(UserContext);
-	const [menuVisible, setMenuVisible] = useState(false);
+	const [menuItems, setMenuItems] = useState(items);
 	const [aboutVisible, setAboutVisible] = useState(false);
 	const [optionsVisible, setOptionsVisible] = useState(false);
 	const [alertMsg, setAlertMsg] = useState({text: '', kind: ''});
 
-	useEffect(() =>
-	{
-		console.log(userState.loggedIn);
-	}, [userState.loggedIn]);
-	
 	const showMessage = (msg, kind) =>
 	{
 		if(msg)
@@ -55,6 +68,22 @@ const Main = ({api}) =>
 		}
 	};
 
+	const appendMenu = (subitems) =>
+	{
+		setMenuItems([
+			...items,
+			null,
+			...subitems
+		]);
+	};
+
+	const restoreMenu = () =>
+	{
+		setMenuItems([
+			...items,
+		]);
+	};
+
 	const handleLogout = () =>
 	{
 		userDispatch({
@@ -62,43 +91,14 @@ const Main = ({api}) =>
 		});
 	};
 
-	const items = [
-		{
-			title: 'Opções',
-			icon: 'cog-outline',
-			onPress: () => setOptionsVisible(true)
-		},		
-		{
-			title: 'Sobre',
-			icon: 'information',
-			onPress: () => setAboutVisible(true)
-		},		
-		{
-			title: 'Sair',
-			icon: 'logout',
-			onPress: () => handleLogout()
-		}
-	];
-
-	const options = {
-		headerRight: 
-			// eslint-disable-next-line react/display-name
-			(props) => 
-				<IconButton 
-					{...props} 
-					icon="menu"
-					color={Colors.black}
-					size={22}
-					onPress={() => setMenuVisible(true)} />
+	const parent = {
+		appendMenu,
+		restoreMenu,
+		showMessage
 	};
 
 	return (
 		<>
-			<MenuPanel 
-				items={items} 
-				visible={menuVisible}
-				onDismiss={() => setMenuVisible(false)} />
-
 			<Options
 				visible={optionsVisible}
 				onDismiss={() => setOptionsVisible(false)} />
@@ -115,7 +115,16 @@ const Main = ({api}) =>
 				{alertMsg.text}
 			</Snackbar>
 
-			<Stack.Navigator>
+			<Stack.Navigator
+				screenOptions={{
+					// eslint-disable-next-line react/display-name
+					header: (props) => 
+						<NavBar 
+							{...props}
+							menuItems={menuItems} 
+						/>,
+				}}
+			>
 				{!userState.loggedIn?
 					<Stack.Screen
 						name="Logon"
@@ -125,7 +134,7 @@ const Main = ({api}) =>
 							<Logon 
 								{...props} 
 								api={api} 
-								showMessage={showMessage} 
+								parent={parent} 
 							/>
 						}
 					</Stack.Screen>:
@@ -133,52 +142,52 @@ const Main = ({api}) =>
 						<Stack.Screen
 							key={0}
 							name="Groups"
-							options={{...options, headerTitle: 'Grupos'}}
+							options={{headerTitle: 'Mesa'}}
 						>
 							{props => 
 								<Groups 
 									{...props} 
 									api={api} 
-									showMessage={showMessage} 
+									parent={parent} 
 								/>
 							}
 						</Stack.Screen>,
 						<Stack.Screen
 							key={1}
 							name="Docs"
-							options={{...options, headerTitle: 'Expedientes'}}
+							options={{headerTitle: 'Expedientes'}}
 						>
 							{props => 
 								<Docs 
 									{...props} 
 									api={api} 
-									showMessage={showMessage} 
+									parent={parent} 
 								/>
 							}
 						</Stack.Screen>,
 						<Stack.Screen
 							key={2}
 							name="Doc"
-							options={{...options, headerTitle: 'Expediente'}}
+							options={{headerTitle: 'Expediente'}}
 						>
 							{props => 
 								<Doc 
 									{...props} 
 									api={api} 
-									showMessage={showMessage} 
+									parent={parent} 
 								/>
 							}
 						</Stack.Screen>,
 						<Stack.Screen
 							key={3}
 							name="PdfView"
-							options={{...options, headerTitle: 'PDF'}}
+							options={{headerTitle: 'PDF'}}
 						>
 							{props => 
 								<PdfView 
 									{...props} 
 									api={api} 
-									showMessage={showMessage} 
+									parent={parent} 
 								/>
 							}
 						</Stack.Screen>

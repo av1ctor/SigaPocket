@@ -13,7 +13,7 @@ import styles from '../styles/default';
 import {UserContext} from '../contexts/User';
 import LoadingIndicator from '../components/LoadingIndicator';
 
-const Logon = ({api, showMessage, navigation}) =>
+const Logon = ({api, parent, navigation}) =>
 {
 	const [username, setUsername] = useState(USERNAME_ || '');
 	const [password, setPassword] = useState(PASSWORD_ || '');
@@ -36,13 +36,13 @@ const Logon = ({api, showMessage, navigation}) =>
 	{
 		if(!username)
 		{
-			showMessage('CPF ou matrícula obrigatório', 'error');
+			parent.showMessage('CPF ou matrícula obrigatório', 'error');
 			return false;
 		}
 		
 		if(!password)
 		{
-			showMessage('Senha obrigatória', 'error');
+			parent.showMessage('Senha obrigatória', 'error');
 			return false;
 		}
 
@@ -78,7 +78,7 @@ const Logon = ({api, showMessage, navigation}) =>
 			const res = await api.logon(username, password);
 			if(res.errors !== null)
 			{
-				showMessage(res.errors, 'error');
+				parent.showMessage(res.errors, 'error');
 				return;
 			}
 
@@ -151,7 +151,7 @@ const Logon = ({api, showMessage, navigation}) =>
 
 Logon.propTypes = {
 	api: PropTypes.object,
-	showMessage: PropTypes.func,
+	parent: PropTypes.object,
 	navigation: PropTypes.object,
 };
 

@@ -7,7 +7,7 @@ import styles from '../styles/default';
 
 const RELOAD_INTERVAL = 60 * 1000;
 
-const Doc = ({api, showMessage, navigation, route}) =>
+const Doc = ({api, parent, navigation, route}) =>
 {
 	const [state, dispatch] = useContext(DocsContext);
 
@@ -17,6 +17,7 @@ const Doc = ({api, showMessage, navigation, route}) =>
 
 	useEffect(() => 
 	{
+		navigation.setOptions({headerTitle: doc.sigla});
 		loadParts();
 	}, [route.params.docId]);
 
@@ -36,7 +37,7 @@ const Doc = ({api, showMessage, navigation, route}) =>
 			}
 			else
 			{
-				showMessage('Falha ao carregar lista de documentos', 'error');
+				parent.showMessage('Falha ao carregar lista de documentos', 'error');
 			}
 		}
 	};
@@ -130,7 +131,7 @@ const Doc = ({api, showMessage, navigation, route}) =>
 
 Doc.propTypes = {
 	api: PropTypes.object,
-	showMessage: PropTypes.func,
+	parent: PropTypes.object,
 	navigation: PropTypes.object,
 	route: PropTypes.object,
 };

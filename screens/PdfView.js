@@ -7,7 +7,7 @@ import {DocsContext} from '../contexts/Docs';
 import LoadingIndicator from '../components/LoadingIndicator';
 import styles from '../styles/default';
 
-const PdfView = ({api, showMessage, route}) =>
+const PdfView = ({api, parent, route}) =>
 {
 	const [state, dispatch] = useContext(DocsContext);
 	const [generated, setGenerated] = useState(0.0);
@@ -18,9 +18,19 @@ const PdfView = ({api, showMessage, route}) =>
 	const doc = (group.grupoDocs || []).find(d => d.codigo === docId) || {};
 	const part = ((doc.parts && doc.parts.list) || []).find(p => p.sigla === partId) || {};
 
+	const items = [
+		{
+			title: 'Salvar',
+			icon: 'file',
+			onPress: () => handleSavePdf()
+		},		
+	];
+
 	useEffect(() =>
 	{
 		loadPdf(route.params.partId);
+		parent.appendMenu(items);
+		return () => parent.restoreMenu();
 	}, [route.params.partId]);
 
 	const loadPdf = async (sigla) =>
@@ -33,7 +43,7 @@ const PdfView = ({api, showMessage, route}) =>
 		const url = await api.findPdf(sigla, false, (completed) => setGenerated(completed));
 		if(url === null)
 		{
-			showMessage('Falha ao gerar PDF', 'error');
+			parent.showMessage('Falha ao gerar PDF', 'error');
 			return;
 		}
 
@@ -47,6 +57,11 @@ const PdfView = ({api, showMessage, route}) =>
 
 		setGenerated(1.0);
 		setLoaded(0.0);
+	};
+
+	const handleSavePdf = () =>
+	{
+		alert('Ainda não implementado :/');
 	};
 
 	return (
@@ -82,7 +97,7 @@ const PdfView = ({api, showMessage, route}) =>
 							maxScale={5}
 							onLoadProgress={(percent) => setLoaded(percent)}
 							onLoadComplete={() => setLoaded(1.0)}
-							onError={() => showMessage('Falha ao carregar PDF', 'error')}
+							onError={() => parent.showMessage('Falha ao carregar PDF', 'error')}
 							activityIndicator={<></>}
 						/>
 					</>:
@@ -109,7 +124,7 @@ const localStyles = StyleSheet.create({
 
 PdfView.propTypes = {
 	api: PropTypes.object,
-	showMessage: PropTypes.func,
+	parent: PropTypes.object,
 	route: PropTypes.object,
 };
 export default PdfView;

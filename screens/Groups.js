@@ -13,7 +13,7 @@ const eventEmitter = new NativeEventEmitter(SigaPocketModule);
 
 const {CHANNEL_ID} = SigaPocketModule.getConstants();
 
-const Groups = ({api, showMessage, navigation}) =>
+const Groups = ({api, parent, navigation}) =>
 {
 	const [options, ] = useContext(OptionsContext);
 	const [state, dispatch] = useContext(DocsContext);
@@ -65,7 +65,7 @@ const Groups = ({api, showMessage, navigation}) =>
 			{
 				if(!config.groups)
 				{
-					showMessage('Falha ao carregar grupos de documentos', 'error');
+					parent.showMessage('Falha ao carregar grupos de documentos', 'error');
 				}
 			}
 			else
@@ -135,7 +135,7 @@ const Groups = ({api, showMessage, navigation}) =>
 
 Groups.propTypes = {
 	api: PropTypes.object,
-	showMessage: PropTypes.func,
+	parent: PropTypes.object,
 	navigation: PropTypes.object,
 };
 

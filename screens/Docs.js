@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import PropTypes from 'prop-types';
 import {SafeAreaView, ScrollView} from 'react-native';
 import {List} from 'react-native-paper';
@@ -11,6 +11,11 @@ const Docs = ({navigation, route}) =>
 
 	const {groupId} = route.params;
 	const group = state.groups.find(g => g.grupo === groupId) || {};
+
+	useEffect(() =>
+	{
+		navigation.setOptions({headerTitle: group.grupoNome});
+	}, [groupId]);
 
 	const renderDoc = (group, groupId, doc) =>
 	{
