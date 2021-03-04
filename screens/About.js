@@ -17,7 +17,7 @@ const About = ({visible, onDismiss}) =>
 				<Subheading>SigaPocket</Subheading>
 				<IconButton 
 					icon="link" 
-					size={15} 
+					size={18} 
 					onPress={() => Linking.openURL('https://github.com/av1ctor/SigaPocket')} 
 				/>
 			</View>
