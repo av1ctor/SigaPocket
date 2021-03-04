@@ -41,6 +41,25 @@ const Doc = ({api, parent, navigation, route}) =>
 			}
 		}
 	};
+
+	const Part = ({part, index}) =>
+	{
+		return (
+			<List.Item 
+				key={index}
+				id={index}
+				title={part.title}
+				left={props => <List.Icon {...props} icon="file-pdf" />} 
+				right={props => <List.Icon {...props} icon="chevron-right" />}
+				onPress={() => navigation.navigate('PdfView', {groupId: groupId, docId: docId, partId: part.sigla})}
+			/>			
+		);
+	};
+
+	Part.propTypes = {
+		part: PropTypes.object,
+		index: PropTypes.number
+	};
 	
 	const renderParts = (parts) =>
 	{
@@ -52,16 +71,22 @@ const Doc = ({api, parent, navigation, route}) =>
 				size={20} />;
 		}
 
+		const complete = parts.find(p => p.isFullDoc === true);
+
 		return (
-			parts.map((part, index) => 
-				<List.Item 
-					key={index}
-					id={index}
-					title={part.title}
-					left={props => <List.Icon {...props} icon="file-pdf" />} 
-					right={props => <List.Icon {...props} icon="chevron-right" />}
-					onPress={() => navigation.navigate('PdfView', {groupId: groupId, docId: docId, partId: part.sigla})}
-				/>
+			parts.map((p, index) => 
+				p.isFullDoc?
+					undefined:
+					<Part 
+						key={index} 
+						index={index} 
+						part={p} />
+			
+			).concat(
+				<Part 
+					key={0} 
+					index={0} 
+					part={complete} />				
 			)
 		);
 	};

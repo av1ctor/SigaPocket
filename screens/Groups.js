@@ -40,14 +40,8 @@ const Groups = ({api, parent, navigation}) =>
 
 	const countInboxPending = (groups) =>
 	{
-		const inboxes = (groups || []).filter(group => group.grupo === 'CAIXA_DE_ENTRADA');
-		if(!inboxes || inboxes.length === 0)
-		{
-			return 0;
-		}
-
-		const inbox = inboxes[0];
-		if(!inbox.grupoDocs || inbox.grupoDocs.length === 0)
+		const inbox = (groups || []).find(group => group.grupo === 'CAIXA_DE_ENTRADA');
+		if(!inbox || !inbox.grupoDocs || inbox.grupoDocs.length === 0)
 		{
 			return 0;
 		}

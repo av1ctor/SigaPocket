@@ -293,9 +293,13 @@ export default class SigaApi
 
 				if(match[2].indexOf('&completo=1') === -1)
 				{
+					const title = match[3].trim();
 					res.push({
 						sigla: match[2].replace('.pdf', ''),
-						title: match[3].trim(),
+						title: title !== sigla? 
+							title:
+							'COMPLETO',
+						isFullDoc: title === sigla,
 						url: null
 					});
 				}
