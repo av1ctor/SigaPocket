@@ -38,6 +38,29 @@ const Groups = ({api, parent, navigation}) =>
 		}
 	}, [options.sync]);
 
+	const countInboxPending = (groups) =>
+	{
+		const inboxes = (groups || []).filter(group => group.grupo === 'CAIXA_DE_ENTRADA');
+		if(!inboxes || inboxes.length === 0)
+		{
+			return 0;
+		}
+
+		const inbox = inboxes[0];
+		if(!inbox.grupoDocs || inbox.grupoDocs.length === 0)
+		{
+			return 0;
+		}
+
+		return inbox.grupoDocs.reduce((cnt, docs) => {
+			return cnt + (docs.list || []).reduce((cnt2, stat) => {
+				return stat.daPessoa && stat.nome.toLowerCase() === 'a receber'? 
+					cnt2 + 1: 
+					cnt2;
+			}, 0);
+		}, 0);
+	};
+
 	const updateGroups = (groups) =>
 	{
 		config.groups = groups;
@@ -72,14 +95,15 @@ const Groups = ({api, parent, navigation}) =>
 			{
 				if(!api.compareGroups(config.groups, groups))
 				{
-					const firstRun = config.groups === null;
+					const pendingBefore = countInboxPending(config.groups);
+					const pendingNow = countInboxPending(groups);
 					updateGroups(groups);
 
-					if(!firstRun && options.sync)
+					if(pendingNow > 0 && pendingNow !== pendingBefore && options.sync)
 					{
 						if(!await SigaPocketModule.isAppOnForeground())
 						{
-							Notificator.notify('Atualização ocorrida na mesa', CHANNEL_ID);
+							Notificator.notify(`${pendingNow} expediente(s) a receber`, CHANNEL_ID);
 						}
 					}
 				}
